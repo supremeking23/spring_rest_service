@@ -4,9 +4,13 @@ import com.ivanfuncion.rest_service.exception.EmployeeNotFoundException;
 import com.ivanfuncion.rest_service.model.Employee;
 import com.ivanfuncion.rest_service.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping(path = "/employees")
@@ -23,9 +27,18 @@ public class EmployeeController {
         return employeeRepository.findAll();
     }
 
+ //   @GetMapping(path = "/{id}")
+//    public Employee getSingleEmployee(@PathVariable Long id){
+//        return employeeRepository.findById(id).orElseThrow(()-> new EmployeeNotFoundException(id));
+//    }
     @GetMapping(path = "/{id}")
-    public Employee getSingleEmployee(@PathVariable Long id){
-        return employeeRepository.findById(id).orElseThrow(()-> new EmployeeNotFoundException(id));
+    public EntityModel<Employee> getSingleEmployee(@PathVariable Long id){
+        Employee employee = employeeRepository.findById(id).orElseThrow(()-> new EmployeeNotFoundException(id));
+
+        return EntityModel.of(employee,
+                linkTo(methodOn(EmployeeController.class).getSingleEmployee(id)).withSelfRel(),
+                linkTo(methodOn(EmployeeController.class).getAllEmployees()).withRel("employees_mo")
+                );
     }
 
     @PostMapping(path = "/add")
