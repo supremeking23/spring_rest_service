@@ -7,6 +7,8 @@ import com.ivanfuncion.rest_service.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Collection;
@@ -76,10 +78,23 @@ public class EmployeeController {
         return employeeModelAssembler.toModel(employee);
     }
 
+//    @PostMapping(path = "/add")
+//    public Employee addEmployee(@RequestBody Employee newEmployee){
+//        return employeeRepository.save(newEmployee);
+//    }
+
+    // POST that handles old and new client requests
     @PostMapping(path = "/add")
-    public Employee addEmployee(@RequestBody Employee newEmployee){
-        return employeeRepository.save(newEmployee);
+    public ResponseEntity<?> addEmployee(@RequestBody Employee newEmployee){
+        //The new Employee object is saved as before. But the resulting object is wrapped using the EmployeeModelAssembler.
+        EntityModel<Employee> entityModel = employeeModelAssembler.toModel(employeeRepository.save(newEmployee));
+
+        //Spring MVC’s ResponseEntity is used to create an HTTP 201 Created status message.
+        // This type of response typically includes a Location response header, and we use the URI derived from the model’s self-related link.
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
+
+
 
     @PutMapping(path = "/{id}")
     public Employee updateEmployee(@RequestBody Employee newEmployee,@PathVariable Long id){

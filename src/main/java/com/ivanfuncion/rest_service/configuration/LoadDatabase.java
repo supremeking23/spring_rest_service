@@ -20,6 +20,9 @@ public class LoadDatabase {
         {
 //            log.info("preloading" + employeeRepository.save(new Employee("Mavis Vermillion", "wizard")));
 //            log.info("preloading" + employeeRepository.save(new Employee("Ivan ", "devils child")));
+//            log.info("preloading" + employeeRepository.save(new Employee("Mavis ", "Vermillion", "devils child")));
+//            log.info("preloading" + employeeRepository.save(new Employee("Zeref ", "Dragneel", "Black Wizard")));
+//            log.info("preloading" + employeeRepository.save(new Employee("Angurie ", "Rice", "Actress")));
         };
     }
 
