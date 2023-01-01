@@ -96,21 +96,45 @@ public class EmployeeController {
 
 
 
+//    @PutMapping(path = "/{id}")
+//    public Employee updateEmployee(@RequestBody Employee newEmployee,@PathVariable Long id){
+//        return employeeRepository.findById(id).map(employee -> {
+//            employee.setName(newEmployee.getName());
+//            employee.setRole(newEmployee.getRole());
+//            return employeeRepository.save(employee);
+//        }).orElseGet(() ->{
+//            newEmployee.setId(id);
+//            return employeeRepository.save(newEmployee);
+//        });
+//    }
+
     @PutMapping(path = "/{id}")
-    public Employee updateEmployee(@RequestBody Employee newEmployee,@PathVariable Long id){
-        return employeeRepository.findById(id).map(employee -> {
-            employee.setName(newEmployee.getName());
-            employee.setRole(newEmployee.getRole());
-            return employeeRepository.save(employee);
-        }).orElseGet(() ->{
-            newEmployee.setId(id);
-            return employeeRepository.save(newEmployee);
-        });
+    ResponseEntity<?> updateEmployee(@RequestBody Employee newEmployee, @PathVariable Long id){
+        Employee updatedEmployee = employeeRepository.findById(id)
+                .map((employee) -> {
+                    employee.setName(newEmployee.getName());
+                    employee.setRole(newEmployee.getRole());
+                    return employeeRepository.save(employee);
+                }).orElseGet(()->{
+                    newEmployee.setId(id);
+                    return employeeRepository.save(newEmployee);
+                });
+
+        EntityModel<Employee> entityModel = employeeModelAssembler.toModel(updatedEmployee);
+        //Using the getRequiredLink() method, you can retrieve the Link created by the EmployeeModelAssembler with a SELF rel.
+        // This method returns a Link which must be turned into a URI with the toUri method.
+        return ResponseEntity.created(entityModel.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(entityModel);
     }
 
+//    @DeleteMapping(path = "/{id}")
+//    public void deleteEmployee(@PathVariable Long id){
+//        employeeRepository.deleteById(id);
+//    }
+
     @DeleteMapping(path = "/{id}")
-    public void deleteEmployee(@PathVariable Long id){
+    public ResponseEntity<?> deleteEmployee(@PathVariable Long id){
         employeeRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     //https://spring.io/guides/tutorials/rest/
